@@ -1,0 +1,11 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="dimenCharacterDetailsLine">6dp</dimen>
+
+    <dimen name="dimenCharacterAngleOffset">35dp</dimen>
+    <!-- this value must be bigger than dimenCharacterAngleOffset so it looks perfect after layout -->
+    <dimen name="characterDetailsOffsetForTitle">45dp</dimen>
+
+</resources>

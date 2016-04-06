@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout  xmlns:android="http://schemas.android.com/apk/res/android"
+         xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View"/>
+        <variable name="character" type="com.slima.marvelh19.model.characters.CharacterResult"/>
+        <variable name="listacomics" type="com.slima.marvelh19.ui.viewmodel.ComicsViewModel"/>
+        <variable name="listaseries" type="com.slima.marvelh19.ui.viewmodel.SeriesViewModel"/>
+        <variable name="listaevents" type="com.slima.marvelh19.ui.viewmodel.EventsViewModel"/>
+        <variable name="listastories" type="com.slima.marvelh19.ui.viewmodel.StoriesViewModel"/>
+
+    </data>
+
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/background">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.slima.marvelh19.ui.customviews.CustomImageView
+                    android:id="@+id/character_details_imageview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:imageUrl="@{character.imageUrl}"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitXY"/>
+
+                <com.slima.marvelh19.ui.customviews.CustomGradientView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:foreground="@drawable/trending_gradient_shape"
+                    android:layout_alignTop="@+id/character_details_imageview"
+                    android:layout_alignBottom="@+id/character_details_imageview"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/CharacterDetails.Name"
+                    android:paddingLeft="20dp"
+                    android:text="@{character.name}"
+                    android:layout_alignBottom="@+id/character_details_imageview"
+                    android:layout_marginBottom="@dimen/characterDetailsOffsetForTitle"/>
+
+                <RelativeLayout
+                    android:layout_below="@+id/character_details_imageview"
+                    android:id="@+id/character_details_details_block"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/character_details_details_title"
+                        style="@style/CharacterDetails.Title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/character_details"/>
+
+                    <TextView
+                        android:id="@+id/character_details_details_content"
+                        style="@style/CharacterDetails.Content"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{character.description}"
+                        android:layout_below="@+id/character_details_details_title"/>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_below="@id/character_details_details_block"
+                    android:id="@+id/character_details_comics_block"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/character_details_comics_title"
+                        style="@style/CharacterDetails.Title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/character_comics"/>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:layout_below="@id/character_details_comics_title"
+                        android:id="@+id/character_details_comics_recycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="210dp"
+                        app:items="@{listacomics.lista}"
+                        app:itemViewBinder="@{listacomics.itemViewBinder}"
+                        />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/character_details_series_block"
+                    android:layout_below="@id/character_details_comics_block"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/character_details_series_title"
+                        style="@style/CharacterDetails.Title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/character_series"/>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:layout_below="@id/character_details_series_title"
+                        android:id="@+id/character_details_series_recycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="210dp"
+                        app:items="@{listaseries.lista}"
+                        app:itemViewBinder="@{listaseries.itemViewBinder}"
+                        />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_below="@id/character_details_series_block"
+                    android:id="@+id/character_details_stories_block"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/character_details_stories_title"
+                        style="@style/CharacterDetails.Title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/character_stories"/>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:layout_below="@id/character_details_stories_title"
+                        android:id="@+id/character_details_stories_recycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="210dp"
+                        app:items="@{listastories.lista}"
+                        app:itemViewBinder="@{listastories.itemViewBinder}"
+                        />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_below="@id/character_details_stories_block"
+                    android:id="@+id/character_details_events_block"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/character_details_events_title"
+                        style="@style/CharacterDetails.Title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/character_events"/>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:layout_below="@id/character_details_events_title"
+                        android:id="@+id/character_details_events_recycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="210dp"
+                        app:items="@{listaevents.lista}"
+                        app:itemViewBinder="@{listaevents.itemViewBinder}"
+                        />
+
+                </RelativeLayout>
+
+
+                <RelativeLayout
+                    android:id="@+id/character_details_related_links_block"
+                    android:layout_below="@id/character_details_events_block"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/character_details_related_links_title"
+                        style="@style/CharacterDetails.Title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/character_related_links"
+                        android:layout_alignParentTop="true"/>
+
+                    <TextView
+                        android:id="@+id/character_details_related_links_detail_title"
+                        style="@style/CharacterDetails.RelatedLinks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/character_related_links_detail"
+                        android:onClick="onLinkClick"
+                        android:clickable="true"
+                        android:layout_below="@+id/character_details_related_links_title"/>
+                    <View
+                        android:layout_below="@id/character_details_related_links_detail_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/separator"/>
+                    <TextView
+                        android:id="@+id/character_details_related_links_wiki_title"
+                        style="@style/CharacterDetails.RelatedLinks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/character_related_links_wiki"
+                        android:onClick="onLinkClick"
+                        android:clickable="true"
+                        android:layout_below="@+id/character_details_related_links_detail_title"/>
+                    <View
+                        android:layout_below="@id/character_details_related_links_wiki_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/separator"/>
+                    <TextView
+                        android:id="@+id/character_details_related_links_comiclink_title"
+                        style="@style/CharacterDetails.RelatedLinks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="onLinkClick"
+                        android:text="@string/character_related_links_comic_link"
+                        android:clickable="true"
+                        android:layout_below="@+id/character_details_related_links_wiki_title"/>
+
+                </RelativeLayout>
+
+                <!--Padding at end of page -->
+
+                <View
+                    android:layout_below="@id/character_details_related_links_block"
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:layout_marginBottom="10dp"/>
+
+
+            </RelativeLayout>
+
+        </ScrollView>
+
+    </RelativeLayout>
+
+</layout>

@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Marvel Characters</string>
+    <string name="title_marvel_characters">Marvel Characters</string>
+    <string name="character_details">Details</string>
+    <string name="no_internet_connection">There\'s no Internet connection... go check your settings</string>
+    <string name="search">Search</string>
+    <string name="search_hint">Search...</string>
+    <string name="character_comics">Comics</string>
+    <string name="character_series">Series</string>
+    <string name="character_events">Events</string>
+    <string name="character_stories">Stories</string>
+    <string name="character_related_links">Related Links</string>
+    <string name="character_related_links_detail">DETAIL</string>
+    <string name="character_related_links_wiki">Wiki</string>
+    <string name="character_related_links_comic_link">Comic Link</string>
+    <string name="relatedlinks_not_exist">That Related Link does not exist</string>
+</resources>

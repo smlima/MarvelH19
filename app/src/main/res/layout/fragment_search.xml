@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout  xmlns:android="http://schemas.android.com/apk/res/android"
+         xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable name="lista" type="com.slima.marvelh19.ui.viewmodel.SearchCharacterViewModel"/>
+        <variable name="view" type="com.slima.marvelh19.activities.MainActivity"/>
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary">
+
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_search"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:items="@{lista.lista}"
+            app:itemViewBinder="@{lista.itemViewBinder}"
+            app:clickHandler="@{view.clickHandler}"
+            />
+
+    </RelativeLayout>
+
+</layout>

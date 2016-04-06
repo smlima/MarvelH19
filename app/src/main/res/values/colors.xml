@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#000002</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#fdfdfd</color>
+    <color name="colorCharacterDetailsLine">#2c630f</color>
+
+    <color name="maskOverlay">#c7000000</color>
+    <color name="maskOverlaystart">#00000000</color>
+
+
+    <color name="characterDetailsHeaderColor">#eed90404</color>
+    <color name="white">#ffffff</color>
+    <color name="splash_background">#00b5ff</color>
+    <color name="lightgrey">#c4c4c4</color>
+
+    <color name="white_transparency">#abffffff</color>
+    <color name="separator">#0ecccccc</color>
+
+</resources>
