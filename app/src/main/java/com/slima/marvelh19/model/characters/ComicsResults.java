@@ -9,12 +9,13 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.slima.marvelh19.database.MarvelDatabase;
 import com.slima.marvelh19.database.converters.ThumbnailTypeConverter;
+import com.slima.marvelh19.model.ThumbnailModelResultsInterfaces;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Table(database = MarvelDatabase.class)
-public class ComicsResults extends BaseModel {
+public class ComicsResults extends BaseModel implements ThumbnailModelResultsInterfaces {
 
     @Override
     public int hashCode() {
@@ -50,7 +51,7 @@ public class ComicsResults extends BaseModel {
     public String title;
     @SerializedName("issueNumber")
     @Expose
-    public Integer issueNumber;
+    public String issueNumber;
     @SerializedName("variantDescription")
     @Expose
     public String variantDescription;
@@ -162,11 +163,11 @@ public class ComicsResults extends BaseModel {
         this.title = title;
     }
 
-    public Integer getIssueNumber() {
+    public String getIssueNumber() {
         return issueNumber;
     }
 
-    public void setIssueNumber(Integer issueNumber) {
+    public void setIssueNumber(String issueNumber) {
         this.issueNumber = issueNumber;
     }
 
@@ -371,6 +372,14 @@ public class ComicsResults extends BaseModel {
 
         if (thumbnail != null && thumbnail.getPath() != null && thumbnail.getExtension()!=null) {
             return thumbnail.getPath() + "/" + "portrait_incredible." + thumbnail.getExtension();
+        }
+        return null;
+    }
+
+    public String getImageUrlBig(){
+
+        if (thumbnail != null && thumbnail.getPath() != null && thumbnail.getExtension()!=null) {
+            return thumbnail.getPath() + "." + thumbnail.getExtension();
         }
         return null;
     }

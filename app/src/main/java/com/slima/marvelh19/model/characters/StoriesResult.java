@@ -9,9 +9,10 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.slima.marvelh19.database.MarvelDatabase;
 import com.slima.marvelh19.database.converters.ThumbnailTypeConverter;
+import com.slima.marvelh19.model.ThumbnailModelResultsInterfaces;
 
 @Table(database = MarvelDatabase.class)
-public class StoriesResult extends BaseModel{
+public class StoriesResult extends BaseModel implements ThumbnailModelResultsInterfaces {
 
     @Override
     public int hashCode() {
@@ -171,6 +172,13 @@ public class StoriesResult extends BaseModel{
 
         if (thumbnail != null && thumbnail.getPath() != null && thumbnail.getExtension()!=null) {
             return thumbnail.getPath() + "/" + "portrait_incredible." + thumbnail.getExtension();
+        }
+        return null;
+    }
+    public String getImageUrlBig(){
+
+        if (thumbnail != null && thumbnail.getPath() != null && thumbnail.getExtension()!=null) {
+            return thumbnail.getPath() +"." + thumbnail.getExtension();
         }
         return null;
     }

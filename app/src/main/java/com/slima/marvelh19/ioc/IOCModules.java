@@ -3,6 +3,8 @@ package com.slima.marvelh19.ioc;
 import com.slima.marvelh19.app.MarvelCharactersApp;
 import com.slima.marvelh19.services.DownloadManager;
 
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
 
@@ -20,6 +22,7 @@ public class IOCModules {
     }
 
     @Provides
+    @Singleton
     DownloadManager provideDownloadManager() {
         return new DownloadManager(app);
     }

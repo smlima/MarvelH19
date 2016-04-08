@@ -1,7 +1,6 @@
 package com.slima.marvelh19.network;
 
 import com.slima.marvelh19.model.characters.CharacterResult;
-import com.slima.marvelh19.model.characters.ComicsResult;
 import com.slima.marvelh19.model.characters.ComicsResults;
 import com.slima.marvelh19.model.characters.EventsResult;
 import com.slima.marvelh19.model.characters.Response;
@@ -180,9 +179,9 @@ public class MarvelNetworkServices {
      * @return
      * @throws IOException
      */
-    public List<ComicsResult> getComics() throws IOException {
-        Call<Response<ComicsResult>> config = mComicsEntityService.getComics(4, 0);
-        retrofit2.Response<Response<ComicsResult>> execute = config.execute();
+    public List<ComicsResults> getComics() throws IOException {
+        Call<Response<ComicsResults>> config = mComicsEntityService.getComics(4, 0);
+        retrofit2.Response<Response<ComicsResults>> execute = config.execute();
 
         return execute.body().getData().getResults();
     }

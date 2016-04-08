@@ -94,12 +94,8 @@ public class MarvelCharactersFragment extends Fragment {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                //Log.d("SLIMA", "onScrolled() called with: " + "recyclerView = [" + recyclerView + "], dx = [" + dx + "], dy = [" + dy + "]");
-                //int lastCompletelyVisibleItemPosition = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastCompletelyVisibleItemPosition();
-                //int lastVisibleItemPosition = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
-                int firstCompletelyVisibleItemPosition = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
-
-                // Log.d("SLIMA", "onScrolled() returned: " + lastCompletelyVisibleItemPosition + ", " + lastVisibleItemPosition);
+                int firstCompletelyVisibleItemPosition = ((LinearLayoutManager) recyclerView.getLayoutManager())
+                        .findFirstCompletelyVisibleItemPosition();
 
                 if (firstCompletelyVisibleItemPosition > chars.lista.size() - 4) {
                     mMainActivityWeakReference.get().getDownloadManager().loadMore();

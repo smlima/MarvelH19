@@ -94,6 +94,7 @@
                         android:layout_height="210dp"
                         app:items="@{listacomics.lista}"
                         app:itemViewBinder="@{listacomics.itemViewBinder}"
+                        app:clickHandler="@{listacomics.clickHandler}"
                         />
 
                 </RelativeLayout>
@@ -118,6 +119,7 @@
                         android:layout_height="210dp"
                         app:items="@{listaseries.lista}"
                         app:itemViewBinder="@{listaseries.itemViewBinder}"
+                        app:clickHandler="@{listaseries.clickHandler}"
                         />
 
                 </RelativeLayout>
@@ -142,6 +144,7 @@
                         android:layout_height="210dp"
                         app:items="@{listastories.lista}"
                         app:itemViewBinder="@{listastories.itemViewBinder}"
+                        app:clickHandler="@{listastories.clickHandler}"
                         />
 
                 </RelativeLayout>
@@ -166,6 +169,8 @@
                         android:layout_height="210dp"
                         app:items="@{listaevents.lista}"
                         app:itemViewBinder="@{listaevents.itemViewBinder}"
+                        app:clickHandler="@{listaevents.clickHandler}"
+
                         />
 
                 </RelativeLayout>

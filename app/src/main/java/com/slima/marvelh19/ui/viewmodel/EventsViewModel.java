@@ -1,15 +1,16 @@
 package com.slima.marvelh19.ui.viewmodel;
 
-import android.databinding.Bindable;
 import android.databinding.ObservableArrayList;
 import android.util.Log;
 
 import com.slima.marvelh19.BR;
 import com.slima.marvelh19.R;
+import com.slima.marvelh19.model.ThumbnailModelResultsInterfaces;
 import com.slima.marvelh19.model.characters.EventsResult;
-import net.droidlabs.mvvm.recyclerview.adapter.binder.ItemBinder;
-import net.droidlabs.mvvm.recyclerview.adapter.binder.ItemBinderBase;
 
+import net.droidlabs.mvvm.recyclerview.adapter.ClickHandler;
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,15 +19,12 @@ import java.util.Set;
  * Events View Model
  * Created by sergio.lima on 05/04/2016.
  */
-public class EventsViewModel extends BaseViewModel {
+public class EventsViewModel extends ImagesThumbnailsModelInterfaces{
 
     private static final String TAG = "StoriesViewModel";
 
-    @Bindable
-    public final ObservableArrayList<EventsResult> lista;
-
     public EventsViewModel() {
-        lista =  new ObservableArrayList<>();
+       super(new ObservableArrayList<ThumbnailModelResultsInterfaces>());
     }
 
     public void addObject(EventsResult stories) {
@@ -37,29 +35,24 @@ public class EventsViewModel extends BaseViewModel {
         Log.d(TAG, "addObject() called with: " + "stories = [" + stories.getId() + " _ " + stories.getTitle() + "]");
     }
 
-    public ItemBinder<EventsResult> itemViewBinder() {
-        return new ItemBinderBase<>(BR.vm, R.layout.uicomponent_events);
+//    public ItemBinder<EventsResult> itemViewBinder() {
+//        return new ItemBinderBase<>(BR.vm, R.layout.uicomponent_events);
+//    }
+
+    @Override
+    int getCustomLayout() {
+        return R.layout.uicomponent_events;
     }
 
-    /**
-     * fetch if the lista is empty so it can hidden the stories setcion on the UI
-     * @return true is emtpy, false otherwise
-     */
-    @Bindable
-    public boolean isEmpty() {
-        //FIXME: why is the lista getting null values ??
-        //Log.d(TAG, "isEmpty: " + lista.isEmpty());
-        if (lista.isEmpty()){
-            return true;
-        }
+    @Override
+    public ObservableArrayList<? extends ThumbnailModelResultsInterfaces> getLista() {
+        return lista;
+    }
 
-        for (EventsResult eventsResult : lista) {
-            if (eventsResult != null) {
-                return true;
-            }
-        }
-
-        return false;
+    public List<ThumbnailModelResultsInterfaces> getListaThumbnails() {
+        List<ThumbnailModelResultsInterfaces> lista = new ArrayList<>();
+        lista.addAll(lista);
+        return lista;
     }
 
     public void addObjects(List<EventsResult> comicsResultses) {
@@ -76,5 +69,27 @@ public class EventsViewModel extends BaseViewModel {
 
         lista.addAll(comicsResultsSet);
         notifyPropertyChanged(BR.lista);
+    }
+
+    ClickHandler<ThumbnailModelResultsInterfaces> mEventsResultClickHandler;
+
+    public void setEventsResultClickHandler(ClickHandler<ThumbnailModelResultsInterfaces> eventsResultClickHandler) {
+        mEventsResultClickHandler = eventsResultClickHandler;
+    }
+
+    public ClickHandler<EventsResult> clickHandler()
+    {
+        return new ClickHandler<EventsResult>()
+        {
+            @Override
+            public void onClick(EventsResult eventsViewModel)
+            {
+                Log.d("SLIMA", "onClick() called with: " + "EventsResult = [" + eventsViewModel + "]");
+
+                if (mEventsResultClickHandler!=null){
+                    mEventsResultClickHandler.onClick(eventsViewModel);
+                }
+            }
+        };
     }
 }

@@ -1,14 +1,16 @@
 package com.slima.marvelh19.ui.viewmodel;
 
-import android.databinding.Bindable;
 import android.databinding.ObservableArrayList;
+import android.util.Log;
 
 import com.slima.marvelh19.BR;
 import com.slima.marvelh19.R;
+import com.slima.marvelh19.model.ThumbnailModelResultsInterfaces;
 import com.slima.marvelh19.model.characters.SeriesResult;
-import net.droidlabs.mvvm.recyclerview.adapter.binder.ItemBinder;
-import net.droidlabs.mvvm.recyclerview.adapter.binder.ItemBinderBase;
 
+import net.droidlabs.mvvm.recyclerview.adapter.ClickHandler;
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,20 +20,17 @@ import java.util.Set;
  *
  * Created by sergio.lima on 05/04/2016.
  */
-public class SeriesViewModel extends BaseViewModel {
+public class SeriesViewModel extends ImagesThumbnailsModelInterfaces{
 
     /** Log Tag */
     private static final String TAG = "StoriesViewModel";
-
-    @Bindable
-    public final ObservableArrayList<SeriesResult> lista;
 
     /**
      * constructor
      *
      */
     public SeriesViewModel() {
-        lista =  new ObservableArrayList<>();
+       super( new ObservableArrayList<ThumbnailModelResultsInterfaces>());
     }
 
     /**
@@ -46,32 +45,28 @@ public class SeriesViewModel extends BaseViewModel {
     }
 
     /**
-     * fetch if the lista is empty so it can hidden the stories setcion on the UI
-     * @return true is emtpy, false otherwise
-     */
-    public boolean isEmpty() {
-        //FIXME: why is the lista getting null values ??
-        //Log.d(TAG, "isEmpty: " + lista.isEmpty());
-        if (lista.isEmpty()){
-            return true;
-        }
-
-        for (SeriesResult seriesResult : lista) {
-            if (seriesResult != null) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * bind the item to the actual layout of the view model
      *
      * @return  binded variable onto the layout
      */
-    public ItemBinder<SeriesResult> itemViewBinder() {
-        return new ItemBinderBase<>(BR.vm, R.layout.uicomponent_series);
+//    public ItemBinder<SeriesResult> itemViewBinder() {
+//        return new ItemBinderBase<>(BR.vm, R.layout.uicomponent_series);
+//    }
+
+    @Override
+    int getCustomLayout() {
+        return R.layout.uicomponent_series;
+    }
+
+    @Override
+    public ObservableArrayList<? extends ThumbnailModelResultsInterfaces> getLista() {
+        return lista;
+    }
+
+    public List<ThumbnailModelResultsInterfaces> getListaThumbnails() {
+        List<ThumbnailModelResultsInterfaces> lista = new ArrayList<>();
+        lista.addAll(lista);
+        return lista;
     }
 
     /**
@@ -89,5 +84,26 @@ public class SeriesViewModel extends BaseViewModel {
 
         lista.addAll(comicsResultsSet);
         notifyPropertyChanged(BR.lista);
+    }
+
+    ClickHandler<ThumbnailModelResultsInterfaces> mSeriesResultClickHandler;
+
+    public void setSeriesResultClickHandler(ClickHandler<ThumbnailModelResultsInterfaces> seriesResultClickHandler) {
+        mSeriesResultClickHandler = seriesResultClickHandler;
+    }
+
+    public ClickHandler<SeriesResult> clickHandler()
+    {
+        return new ClickHandler<SeriesResult>()
+        {
+            @Override
+            public void onClick(SeriesResult seriesResult)
+            {
+                Log.d("SLIMA", "onClick() called with: " + "Series = [" + seriesResult + "]");
+                if(mSeriesResultClickHandler!=null){
+                    mSeriesResultClickHandler.onClick(seriesResult);
+                }
+            }
+        };
     }
 }

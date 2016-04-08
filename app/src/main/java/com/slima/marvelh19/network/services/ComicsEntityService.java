@@ -1,6 +1,5 @@
 package com.slima.marvelh19.network.services;
 
-import com.slima.marvelh19.model.characters.ComicsResult;
 import com.slima.marvelh19.model.characters.ComicsResults;
 import com.slima.marvelh19.model.characters.Response;
 
@@ -24,7 +23,7 @@ public interface ComicsEntityService {
      * @return the list of comics
      */
     @GET("comics")
-    Call<Response<ComicsResult>> getComics(@Query("limit") Integer limit, @Query("offset") Integer offset);
+    Call<Response<ComicsResults>> getComics(@Query("limit") Integer limit, @Query("offset") Integer offset);
 
     /**
      * fetch the comics with the default options
@@ -32,7 +31,7 @@ public interface ComicsEntityService {
      * @return the list of comic
      */
     @GET("comics")
-    Call<Response<ComicsResult>> getComics();
+    Call<Response<ComicsResults>> getComics();
 
     /**
      * Get the comic by id

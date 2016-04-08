@@ -6,11 +6,12 @@ import android.util.Log;
 
 import com.slima.marvelh19.BR;
 import com.slima.marvelh19.R;
+import com.slima.marvelh19.model.ThumbnailModelResultsInterfaces;
 import com.slima.marvelh19.model.characters.ComicsResults;
 
-import net.droidlabs.mvvm.recyclerview.adapter.binder.ItemBinder;
-import net.droidlabs.mvvm.recyclerview.adapter.binder.ItemBinderBase;
+import net.droidlabs.mvvm.recyclerview.adapter.ClickHandler;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,21 +21,19 @@ import java.util.Set;
  * <p/>
  * Created by sergio.lima on 05/04/2016.
  */
-public class ComicsViewModel extends BaseViewModel {
+public class ComicsViewModel extends ImagesThumbnailsModelInterfaces{
 
     /**
      * Log Tag
      */
     private static final String TAG = "StoriesViewModel";
 
-    @Bindable
-    public final ObservableArrayList<ComicsResults> lista;
-
     /**
      * Constructor
      */
     public ComicsViewModel() {
-        lista = new ObservableArrayList<>();
+        super(new ObservableArrayList<ThumbnailModelResultsInterfaces>());
+
     }
 
     /**
@@ -55,10 +54,25 @@ public class ComicsViewModel extends BaseViewModel {
      *
      * @return itembinder
      */
-    public ItemBinder<ComicsResults> itemViewBinder() {
-        return new ItemBinderBase<>(BR.vm, R.layout.uicomponent_comics);
+//    public ItemBinder<ComicsResults> itemViewBinder() {
+//        return new ItemBinderBase<>(BR.vm, R.layout.uicomponent_comics);
+//    }
+
+    @Override
+    int getCustomLayout() {
+        return R.layout.uicomponent_comics;
     }
 
+    @Override
+    public ObservableArrayList<? extends ThumbnailModelResultsInterfaces> getLista() {
+        return lista;
+    }
+
+    public List<ThumbnailModelResultsInterfaces> getListaThumbnails() {
+        List<ThumbnailModelResultsInterfaces> lista = new ArrayList<>();
+        lista.addAll(lista);
+        return lista;
+    }
     /**
      * fetch if the lista is empty so it can hidden the stories setcion on the UI
      *
@@ -72,7 +86,7 @@ public class ComicsViewModel extends BaseViewModel {
             return true;
         }
 
-        for (ComicsResults comicsResult : lista) {
+        for (ThumbnailModelResultsInterfaces comicsResult : lista) {
             if (comicsResult != null) {
                 return true;
             }
@@ -88,10 +102,6 @@ public class ComicsViewModel extends BaseViewModel {
      * @param comicsResultses comics
      */
     public void addObjects(List<ComicsResults> comicsResultses) {
-//
-//        for (ComicsResults comicsResultse : comicsResultses) {
-//
-//        }
 
         // clear equal objects.. Just in case
         Set<ComicsResults> comicsResultsSet = new HashSet<>();
@@ -101,5 +111,26 @@ public class ComicsViewModel extends BaseViewModel {
 
         notifyPropertyChanged(BR.lista);
 
+    }
+
+    ClickHandler<ThumbnailModelResultsInterfaces> mComicsResultsClickHandler;
+
+    public void setComicsResultsClickHandler(ClickHandler<ThumbnailModelResultsInterfaces> comicsResultsClickHandler) {
+        mComicsResultsClickHandler = comicsResultsClickHandler;
+    }
+
+    public ClickHandler<ComicsResults> clickHandler()
+    {
+        return new ClickHandler<ComicsResults>()
+        {
+            @Override
+            public void onClick(ComicsResults comicsResult)
+            {
+                Log.d("SLIMA", "onClick() called with: " + "ComicsResults = [" + comicsResult + "]");
+                if(mComicsResultsClickHandler!=null){
+                    mComicsResultsClickHandler.onClick(comicsResult);
+                }
+            }
+        };
     }
 }

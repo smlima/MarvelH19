@@ -26,4 +26,18 @@ public class CustomBinder {
                 .into(view);
     }
 
+    /**
+     * Bind the url to the Imageview , through Picasso
+     *
+     * @param view     the imageview
+     * @param imageUrlBig the url of  the image
+     */
+    @BindingAdapter({"imageUrlBig"})
+    public static void loadImageBig(ImageView view, String imageUrlBig) {
+        Picasso.with(view.getContext())
+                .load(imageUrlBig)
+                .noPlaceholder()
+                .into(view);
+    }
+
 }

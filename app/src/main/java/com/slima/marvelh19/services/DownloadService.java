@@ -5,12 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.slima.marvelh19.app.MarvelCharactersApp;
 import com.slima.marvelh19.model.characters.CharacterResult;
 import com.slima.marvelh19.model.characters.ComicsResults;
 import com.slima.marvelh19.model.characters.EventsResult;
@@ -20,7 +18,11 @@ import com.slima.marvelh19.model.characters.Url;
 import com.slima.marvelh19.network.MarvelNetworkServices;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -85,7 +87,16 @@ public class DownloadService extends IntentService {
     public DownloadService() {
         super(TAG);
 
-        MarvelCharactersApp.getIoC(MarvelCharactersApp.getAppContext()).inject(this);
+        //Log.d(TAG, "DownloadService() called with: " + "");
+
+        //MarvelCharactersApp.getIoC(MarvelCharactersApp.getAppContext()).inject(this);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // reuse the service
+        setIntentRedelivery(true);
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
@@ -98,7 +109,7 @@ public class DownloadService extends IntentService {
         switch (DownloadActions.fromString(action)) {
             case LOAD_CHARACTER:
                 // load character
-                loadCharacter(extras);
+                loadCharacterAsync(extras);
                 break;
             case LOAD_INIT:
                 // load loadInit stuff
@@ -106,11 +117,11 @@ public class DownloadService extends IntentService {
                 break;
             case LOAD_MORE:
                 // load more
-                loadMore(extras);
+                loadMoreAsync(extras);
                 break;
             case LOAD_SEARCH:
                 // load more
-                loadSearch(extras);
+                loadSearchAsync(extras);
                 break;
             case DO_NOTHING:
             default:
@@ -244,29 +255,13 @@ public class DownloadService extends IntentService {
 
         final long count = SQLite.select().from(CharacterResult.class).query().getCount();
 
-        //FIXME: replace this for a Future task or similar
-        new AsyncTask<Void, Integer, List<CharacterResult>>() {
-            @Override
-            protected List<CharacterResult> doInBackground(Void... params) {
-                List<CharacterResult> characters = null;
-                try {
-                    // load more characters
-                    characters = new MarvelNetworkServices().getCharacters(LOAD_MORE_TOTAL_REQUEST, (int) count);
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                return characters;
-            }
-
-            @Override
-            protected void onPostExecute(List<CharacterResult> characterResults) {
-
-               persistCharactersList(characterResults);
-
-            }
-        }.execute();
+        try {
+            persistCharactersList(new MarvelNetworkServices().getCharacters(LOAD_MORE_TOTAL_REQUEST, (int) count));
+        } catch (IOException e) {
+            Log.e(TAG, "loadMore: ", e);
+            e.printStackTrace();
+        }
 
     }
 
@@ -283,33 +278,159 @@ public class DownloadService extends IntentService {
 
         if (characterSearchName != null && characterSearchName.length() > 1) {
 
-            //FIXME: replace this for a Future task or similar
-            new AsyncTask<Void, Integer, List<CharacterResult>>() {
-                @Override
-                protected List<CharacterResult> doInBackground(Void... params) {
-                    List<CharacterResult> characters = null;
-                    try {
-                        // load more characters
-                        characters = new MarvelNetworkServices().getCharactersByName(characterSearchName);
+            try {
+                // load more characters
+                persistCharactersList( new MarvelNetworkServices().getCharactersByName(characterSearchName));
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-                    return characters;
-                }
-
-                @Override
-                protected void onPostExecute(List<CharacterResult> characterResults) {
-
-                    persistCharactersList(characterResults);
-
-                }
-            }.execute();
         }
 
     }
 
+    MyExecutor myExecutoer = new MyExecutor();
+
+    List<FutureTask> taskslist = new ArrayList<>(5);
+
+    static int count =0;
+    /**
+     * load more characters from marvel
+     *
+     * @param extras
+     */
+    public void loadSearchAsync(Bundle extras) {
+
+        Log.d(TAG, "loadSearchAsync() called with: " + "extras = [" + extras + "]");
+
+        final String characterSearchName = extras.getString(ACTION_SEARCH_NAME);
+
+        if (characterSearchName != null && characterSearchName.length() > 1) {
+
+            FutureTask task = new FutureTask(new Callable() {
+                @Override
+                public Object call() throws Exception {
+
+                    persistCharactersList( new MarvelNetworkServices().getCharactersByName(characterSearchName));
+
+                    return null;
+                }
+            });
+
+            addTaskToQueue(task);
+
+        }
+
+    }
+
+    private void loadMoreAsync(Bundle extras) {
+
+        Log.d(TAG, "loadMoreAsync() called with: " + "extras = [" + extras + "]");
+
+
+        FutureTask task = new FutureTask(new Callable() {
+            @Override
+            public Object call() throws Exception {
+
+                final long count = SQLite.select().from(CharacterResult.class).query().getCount();
+
+                persistCharactersList(new MarvelNetworkServices().getCharacters(LOAD_MORE_TOTAL_REQUEST, (int) count));
+
+                return null;
+            }
+        });
+
+        addTaskToQueue(task);
+
+    }
+
+    /**
+     * Load character details
+     *
+     * @param extras intent bundle of extras
+     */
+    private void loadCharacterAsync(Bundle extras) {
+
+        Log.d(TAG, "loadCharacter() called with: " + "extras = [" + extras + "]");
+
+        if (!isNetworkAvailable(this)) {
+            Log.e(TAG, " Does not have internet connection... aborting...");
+            return;
+        }
+
+        final Integer characterId = extras.getInt(ACTION_ID);
+
+        FutureTask task = new FutureTask(new Callable() {
+            @Override
+            public Object call() throws Exception {
+                persistComicsList(new MarvelNetworkServices().getComicsForCharacterId(characterId), characterId);
+                return null;
+            }
+        });
+        FutureTask task2 = new FutureTask(new Callable() {
+            @Override
+            public Object call() throws Exception {
+                persistSeriesList(new MarvelNetworkServices().getSeriesForCharacterId(characterId), characterId);
+                return null;
+            }
+        });
+        FutureTask task3 = new FutureTask(new Callable() {
+            @Override
+            public Object call() throws Exception {
+                persistStoriesList(new MarvelNetworkServices().getStoriesForCharacterId(characterId), characterId);
+                return null;
+            }
+        });
+        FutureTask task4 = new FutureTask(new Callable() {
+            @Override
+            public Object call() throws Exception {
+                persistEventsList(new MarvelNetworkServices().getEventsForCharacterId(characterId), characterId);
+                return null;
+            }
+        });
+
+        // clear and stopp all other tasks. this one has higher priority
+        for (FutureTask futureTask : taskslist) {
+            futureTask.cancel(true);
+        }
+        taskslist.clear();
+
+        addTaskToQueue(task);
+        addTaskToQueue(task2);
+        addTaskToQueue(task3);
+        addTaskToQueue(task4);
+
+    }
+
+    /**
+     *
+     * @param task
+     */
+    private void addTaskToQueue(FutureTask task) {
+        synchronized (taskslist) {
+            if (myExecutoer.getQueue().remainingCapacity() > 0) {
+                // reference for the future
+                taskslist.add(task);
+                // execute it
+                myExecutoer.execute(task);
+            } else {
+
+                try {
+                    myExecutoer.awaitTermination(2000, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if (myExecutoer.getQueue().remainingCapacity() > 0) {
+                    // reference for the future
+                    taskslist.add(task);
+                    // execute it
+                    myExecutoer.execute(task);
+                }
+            }
+        }
+    }
 
     /**
      * loadInit load of few marvel characters
@@ -336,27 +457,13 @@ public class DownloadService extends IntentService {
             return;
         }
 
-        new AsyncTask<Void, Integer, List<CharacterResult>>() {
-            @Override
-            protected List<CharacterResult> doInBackground(Void... params) {
-                List<CharacterResult> characters = null;
-                try {
-                    characters = new MarvelNetworkServices().getCharacters(LOAD_MORE_TOTAL_REQUEST, 0);
+        try {
+            persistCharactersList( new MarvelNetworkServices().getCharacters(LOAD_MORE_TOTAL_REQUEST, 0));
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-                return characters;
-            }
-
-            @Override
-            protected void onPostExecute(List<CharacterResult> characterResults) {
-
-                persistCharactersList(characterResults);
-
-            }
-        }.execute();
 
     }
 
@@ -376,93 +483,14 @@ public class DownloadService extends IntentService {
 
         final Integer characterId = extras.getInt(ACTION_ID);
 
-
-        new AsyncTask<Void, Integer, List<ComicsResults>>() {
-            @Override
-            protected List<ComicsResults> doInBackground(Void... params) {
-                List<ComicsResults> characters = null;
-                try {
-                    characters = new MarvelNetworkServices().getComicsForCharacterId(characterId);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                return characters;
-            }
-
-            @Override
-            protected void onPostExecute(List<ComicsResults> comicsResultses) {
-
-                persistComicsList(comicsResultses, characterId);
-
-            }
-        }.execute();
-
-
-        new AsyncTask<Void, Integer, List<SeriesResult>>() {
-            @Override
-            protected List<SeriesResult> doInBackground(Void... params) {
-                List<SeriesResult> series = null;
-                try {
-                    series = new MarvelNetworkServices().getSeriesForCharacterId(characterId);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                return series;
-            }
-
-            @Override
-            protected void onPostExecute(List<SeriesResult> characterResults) {
-
-               persistSeriesList(characterResults, characterId);
-            }
-        }.execute();
-
-        new AsyncTask<Void, Integer, List<StoriesResult>>() {
-            @Override
-            protected List<StoriesResult> doInBackground(Void... params) {
-                List<StoriesResult> series = null;
-                try {
-                    series = new MarvelNetworkServices().getStoriesForCharacterId(characterId);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                return series;
-            }
-
-            @Override
-            protected void onPostExecute(List<StoriesResult> characterResults) {
-
-               persistStoriesList(characterResults, characterId);
-            }
-        }.execute();
-
-        new AsyncTask<Void, Integer, List<EventsResult>>() {
-            @Override
-            protected List<EventsResult> doInBackground(Void... params) {
-                List<EventsResult> series = null;
-                try {
-                    series = new MarvelNetworkServices().getEventsForCharacterId(characterId);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                return series;
-            }
-
-            @Override
-            protected void onPostExecute(List<EventsResult> characterResults) {
-
-               persistEventsList(characterResults, characterId);
-            }
-        }.execute();
-
+        try {
+            persistComicsList(new MarvelNetworkServices().getComicsForCharacterId(characterId), characterId);
+            persistSeriesList(new MarvelNetworkServices().getSeriesForCharacterId(characterId), characterId);
+            persistStoriesList(new MarvelNetworkServices().getStoriesForCharacterId(characterId), characterId);
+            persistEventsList(new MarvelNetworkServices().getEventsForCharacterId(characterId), characterId);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -479,5 +507,6 @@ public class DownloadService extends IntentService {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+
 
 }

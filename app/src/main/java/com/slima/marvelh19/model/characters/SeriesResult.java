@@ -9,12 +9,13 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.slima.marvelh19.database.MarvelDatabase;
 import com.slima.marvelh19.database.converters.ThumbnailTypeConverter;
+import com.slima.marvelh19.model.ThumbnailModelResultsInterfaces;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Table(database = MarvelDatabase.class)
-public class SeriesResult extends BaseModel{
+public class SeriesResult extends BaseModel implements ThumbnailModelResultsInterfaces {
 
     @Override
     public int hashCode() {
@@ -205,5 +206,11 @@ public class SeriesResult extends BaseModel{
         }
         return null;
     }
+    public String getImageUrlBig(){
 
+        if (thumbnail != null && thumbnail.getPath() != null && thumbnail.getExtension()!=null) {
+            return thumbnail.getPath() + "." + thumbnail.getExtension();
+        }
+        return null;
+    }
 }
