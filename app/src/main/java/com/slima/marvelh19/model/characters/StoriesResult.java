@@ -178,7 +178,7 @@ public class StoriesResult extends BaseModel implements ThumbnailModelResultsInt
     public String getImageUrlBig(){
 
         if (thumbnail != null && thumbnail.getPath() != null && thumbnail.getExtension()!=null) {
-            return thumbnail.getPath() +"." + thumbnail.getExtension();
+            return thumbnail.getPath() + "/" + BIG_IMAGE_TYPE +"." + thumbnail.getExtension();
         }
         return null;
     }

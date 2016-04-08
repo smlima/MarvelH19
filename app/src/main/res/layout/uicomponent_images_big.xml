@@ -9,11 +9,12 @@
             android:layout_gravity="center"
             android:layout_width="match_parent"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@android:color/transparent"
+            app:cardBackgroundColor="@android:color/black"
             android:layout_height="match_parent">
 
         <RelativeLayout
             android:layout_width="match_parent"
+            android:padding="50dp"
             android:layout_height="match_parent" >
 
             <ImageView

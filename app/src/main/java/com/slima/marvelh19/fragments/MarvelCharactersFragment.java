@@ -14,11 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
-import com.raizlabs.android.dbflow.sql.language.From;
+import com.raizlabs.android.dbflow.sql.language.Condition;
+import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.OrderBy;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.slima.marvelh19.R;
@@ -130,25 +130,18 @@ public class MarvelCharactersFragment extends Fragment {
         @Override
         public void onModelStateChanged(@Nullable Class<? extends Model> table, BaseModel.Action action, @NonNull SQLCondition[] primaryKeyValues) {
 
-            StringBuilder sb = new StringBuilder();
-
-            for (SQLCondition primaryKeyValue : primaryKeyValues) {
-                sb.append(primaryKeyValue.columnName())
-                        .append(":")
-                        .append(primaryKeyValue.value())
-                        .append("   ,  ");
+            if (primaryKeyValues==null || primaryKeyValues.length==0){
+                // nothing to update
+                return;
             }
 
-            Log.d(TAG, "onModelStateChanged() called with: " + "table = [" + table + "], action = [" + action + "], primaryKeyValues = [" + sb.toString() + "]");
+            Condition[] conditions = new Condition[primaryKeyValues.length];
 
-            Select select = SQLite.select();
-            From<CharacterResult> from = select.from(CharacterResult.class);
-
-            for (SQLCondition primaryKeyValue : primaryKeyValues) {
-                from.having(primaryKeyValue);
+            for (int i = 0; i < primaryKeyValues.length; i++) {
+                conditions[i] = Condition.column(new NameAlias("id")).eq(primaryKeyValues[i].value());
             }
 
-            final List<CharacterResult> characterResults = from.queryList();
+            final List<CharacterResult> characterResults = SQLite.select().from(CharacterResult.class).where(conditions).queryList();
 
             getActivity().runOnUiThread(new Runnable() {
                 @Override

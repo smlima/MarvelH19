@@ -10,4 +10,14 @@ public interface ThumbnailModelResultsInterfaces {
     Thumbnail getThumbnail();
     String getImageUrl();
     String getImageUrlBig();
+
+    public final static String BIG_IMAGE_TYPE = "detail";
+
+
+//    portrait_small,
+//    portrait_medium	,
+//    portrait_xlarge,
+//    portrait_fantastic,
+//    portrait_uncanny,
+//    portrait_incredible
 }
