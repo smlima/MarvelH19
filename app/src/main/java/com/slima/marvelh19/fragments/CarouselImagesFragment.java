@@ -4,8 +4,13 @@ import android.app.Fragment;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -28,6 +33,8 @@ public class CarouselImagesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        setHasOptionsMenu(true);
+
         FragmentCarousselImagesBinding viewDataBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_caroussel_images, container,false);
 
         viewDataBinding.setVm(mGenericImagesViewModel);
@@ -39,6 +46,17 @@ public class CarouselImagesFragment extends Fragment {
         viewDataBinding.genericCarousselRecycler.setLayoutManager(linearLayoutManagerEvents);
 
         return viewDataBinding.getRoot();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+
+        if(supportActionBar != null) {
+            supportActionBar.setDisplayHomeAsUpEnabled(false);
+        }
     }
 
     /**
@@ -53,5 +71,31 @@ public class CarouselImagesFragment extends Fragment {
         carouselImagesFragment.setGenericImagesViewModel(viewModel);
 
         return carouselImagesFragment;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        inflater.inflate(R.menu.menu, menu);
+
+        MenuItem search = menu.findItem(R.id.menu_search);
+        MenuItem clear = menu.findItem(R.id.menu_clear);
+
+        search.setVisible(false);
+        clear.setVisible(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+            case R.id.menu_clear:
+                // close, and go back
+                getFragmentManager().popBackStack();
+                return true;
+            default:
+                // default
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

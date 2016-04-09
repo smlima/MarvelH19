@@ -11,4 +11,12 @@
           android:actionViewClass="android.support.v7.widget.SearchView"
           app:actionViewClass="android.support.v7.widget.SearchView"
           tools:ignore="AppCompatResource"/>
+
+    <item android:id="@+id/menu_clear"
+          android:title="@string/clear"
+          android:icon="@drawable/ic_clear"
+          android:showAsAction="always"
+          app:showAsAction="always"
+          android:visible="false"
+          tools:ignore="AppCompatResource"/>
 </menu>
