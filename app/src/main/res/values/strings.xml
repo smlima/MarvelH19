@@ -15,4 +15,5 @@
     <string name="character_related_links_comic_link">Comic Link</string>
     <string name="relatedlinks_not_exist">That Related Link does not exist</string>
     <string name="clear">Clear</string>
+    <string name="carousselCounter">Item selected\n%1$s  from %2$s</string>
 </resources>

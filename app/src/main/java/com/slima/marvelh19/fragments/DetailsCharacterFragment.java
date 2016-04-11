@@ -13,11 +13,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
+import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
@@ -45,11 +48,15 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 /**
+ * Fragment responsible to render the Details of a character
+ * <p/>
  * Created by sergio.lima on 07/04/2016.
  */
 public class DetailsCharacterFragment extends Fragment {
 
-
+    /**
+     * Log Tag
+     */
     private static final String TAG = "DetailsCharacerFragment";
     /**
      * view models for the activity
@@ -88,7 +95,7 @@ public class DetailsCharacterFragment extends Fragment {
         @Override
         public void onClick(View view) {
             String url = null;
-            switch (view.getId()){
+            switch (view.getId()) {
                 case R.id.character_details_related_links_comiclink_title:
                     url = charactersViewModel.getComicLink();
                     break;
@@ -100,7 +107,7 @@ public class DetailsCharacterFragment extends Fragment {
                     break;
             }
 
-            if (url != null){
+            if (url != null) {
 
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(url));
@@ -128,12 +135,12 @@ public class DetailsCharacterFragment extends Fragment {
         }
 
 
-        ActivityCharacterDetailsBinding viewDataBinding = DataBindingUtil.inflate(inflater, R.layout.activity_character_details, container,false);
+        ActivityCharacterDetailsBinding viewDataBinding = DataBindingUtil.inflate(inflater, R.layout.activity_character_details, container, false);
 
         viewDataBinding.setCharacter(charactersViewModel);
 
         for (Url url : charactersViewModel.getUrls()) {
-            Log.d(TAG, "t = " + url.getType() + " || " + url.getUrl() );
+            Log.d(TAG, "t = " + url.getType() + " || " + url.getUrl());
 
         }
 
@@ -142,8 +149,25 @@ public class DetailsCharacterFragment extends Fragment {
         // fetch COMICS
         comicsModel = new ComicsViewModel();
         comicsModel.setComicsResultsClickHandler(mComicsResultsClickHandler);
-        List<ComicsResults> comicsResultses = SQLite.select().from(ComicsResults.class).where(characterIdCondition).queryList();
-        comicsModel.addObjects(comicsResultses);
+        //List<ComicsResults> comicsResultses = ;
+
+        SQLite.select().from(ComicsResults.class).where(characterIdCondition).async().queryList(new TransactionListener<List<ComicsResults>>() {
+            @Override
+            public void onResultReceived(List<ComicsResults> result) {
+                comicsModel.addObjects(result);
+            }
+
+            @Override
+            public boolean onReady(BaseTransaction<List<ComicsResults>> transaction) {
+                return true;
+            }
+
+            @Override
+            public boolean hasResult(BaseTransaction<List<ComicsResults>> transaction, List<ComicsResults> result) {
+                return true;
+            }
+        });
+        //comicsModel.addObjects(comicsResultses);
         viewDataBinding.setListacomics(comicsModel);
 
 
@@ -188,8 +212,31 @@ public class DetailsCharacterFragment extends Fragment {
         // trigger a fetch for details data of the character
         mMainActivityWeakReference.get().getDownloadManager().loadCharacterComics(charactersViewModel.getId());
 
+
+
+        viewDataBinding.characterDetailsScrollview.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Log.d(TAG, "onTouch() called with: " + "v = [" + v + "], event = [" + event + "]");
+
+                previous -= event.getY();
+
+                int delta = (int)previous;
+
+                Log.d(TAG, "onTouch() returned Y: " + (int)event.getY());
+                Log.d(TAG, "onTouch() returned: " + delta);
+
+                mMainActivityWeakReference.get().getSupportActionBar().setHideOffset(delta);
+
+                return false;
+            }
+        });
+
+
         return viewDataBinding.getRoot();
     }
+
+    long previous = 0l;
 
     @Override
     public void onResume() {
@@ -197,7 +244,7 @@ public class DetailsCharacterFragment extends Fragment {
 
         ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 
-        if(supportActionBar != null) {
+        if (supportActionBar != null) {
             supportActionBar.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -220,7 +267,7 @@ public class DetailsCharacterFragment extends Fragment {
         @Override
         public void onModelStateChanged(@Nullable Class<? extends Model> table, BaseModel.Action action, @NonNull SQLCondition[] primaryKeyValues) {
 
-            if (primaryKeyValues==null || primaryKeyValues.length==0){
+            if (primaryKeyValues == null || primaryKeyValues.length == 0) {
                 // nothing to update
                 return;
             }
@@ -250,33 +297,39 @@ public class DetailsCharacterFragment extends Fragment {
         }
     };
 
+    /**
+     * Handler for when click on one of the recycler views with the thumbnails
+     */
     ClickHandler<ThumbnailModelResultsInterfaces> mComicsResultsClickHandler = new ClickHandler<ThumbnailModelResultsInterfaces>() {
         @Override
         public void onClick(ThumbnailModelResultsInterfaces viewModel) {
 
-            Fragment fragment ;
-            if (viewModel instanceof ComicsResults){
-                fragment =  CarouselImagesFragment.newInstance(comicsModel);
-            } else if (viewModel instanceof SeriesResult){
-                fragment =  CarouselImagesFragment.newInstance(mSeriesViewModel);
-            } else if (viewModel instanceof StoriesResult){
-                fragment =  CarouselImagesFragment.newInstance(storiesViewModel);
-            } else if (viewModel instanceof EventsResult){
-                fragment =  CarouselImagesFragment.newInstance(eventsViewModel);
+            Fragment fragment;
+            if (viewModel instanceof ComicsResults) {
+                fragment = CarouselImagesFragment.newInstance(comicsModel);
+            } else if (viewModel instanceof SeriesResult) {
+                fragment = CarouselImagesFragment.newInstance(mSeriesViewModel);
+            } else if (viewModel instanceof StoriesResult) {
+                fragment = CarouselImagesFragment.newInstance(storiesViewModel);
+            } else if (viewModel instanceof EventsResult) {
+                fragment = CarouselImagesFragment.newInstance(eventsViewModel);
             } else {
                 return;
             }
 
-
             getFragmentManager().beginTransaction()
-                .replace(R.id.contentPanel, fragment)
-                .addToBackStack(null)
-                .commit();
-
+                    .replace(R.id.contentPanel, fragment)
+                    .addToBackStack(null)
+                    .commit();
 
         }
     };
 
+    /**
+     * get a new instance of a @{link DetailsCharacterFragment}
+     *
+     * @return a new fragment
+     */
     public static Fragment newInstance() {
         return new DetailsCharacterFragment();
     }
