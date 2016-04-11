@@ -3,6 +3,8 @@ package com.slima.marvelh19.binding;
 import android.databinding.BindingAdapter;
 import android.widget.ImageView;
 
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -20,10 +22,24 @@ public class CustomBinder {
      * @param imageUrl the url of  the image
      */
     @BindingAdapter({"imageUrl"})
-    public static void loadImage(ImageView view, String imageUrl) {
+    public static void loadImage(final ImageView view, final String imageUrl) {
         Picasso.with(view.getContext())
                 .load(imageUrl)
-                .into(view);
+                .networkPolicy(NetworkPolicy.OFFLINE)   // load from cache only
+                .into(view, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        // nothing to be done
+                    }
+
+                    @Override
+                    public void onError() {
+                        // try load from the network
+                        Picasso.with(view.getContext())
+                                .load(imageUrl)
+                                .into(view);
+                    }
+                });
     }
 
     /**
@@ -33,11 +49,26 @@ public class CustomBinder {
      * @param imageUrlBig the url of  the image
      */
     @BindingAdapter({"imageUrlBig"})
-    public static void loadImageBig(ImageView view, String imageUrlBig) {
+    public static void loadImageBig(final ImageView view, final String imageUrlBig) {
         Picasso.with(view.getContext())
                 .load(imageUrlBig)
+                .networkPolicy(NetworkPolicy.OFFLINE)   // load from cache only
                 .noPlaceholder()
-                .into(view);
+                .into(view, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        // great..
+                    }
+
+                    @Override
+                    public void onError() {
+                        // try load the image from the internet
+                        Picasso.with(view.getContext())
+                                .load(imageUrlBig)
+                                .noPlaceholder()
+                                .into(view);
+                    }
+                });
     }
 
 }

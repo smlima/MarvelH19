@@ -7,7 +7,7 @@ import android.view.WindowManager;
 import android.widget.ProgressBar;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.config.GeneratedDatabaseHolder;
+import com.raizlabs.android.dbflow.config.MarvelGeneratedDatabaseHolder;
 import com.slima.marvelh19.R;
 
 /**
@@ -67,7 +67,7 @@ public class SplashActivity extends BaseActivity{
      */
     private void initLoading() {
 
-        FlowManager.initModule(GeneratedDatabaseHolder.class);
+        FlowManager.initModule(MarvelGeneratedDatabaseHolder.class);
 
         // prefetch data
         this.downloadManager.loadInit();

@@ -32,6 +32,12 @@ android {
     }
 }
 
+apt {
+    arguments {
+        targetModuleName 'Marvel'
+    }
+}
+
 dependencies {
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
