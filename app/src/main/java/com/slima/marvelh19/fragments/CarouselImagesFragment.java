@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 
 import com.slima.marvelh19.R;
 import com.slima.marvelh19.databinding.FragmentCarousselImagesBinding;
-import com.slima.marvelh19.ui.viewmodel.ImagesThumbnailsModelInterfaces;
+import com.slima.marvelh19.viewmodel.ImagesThumbnailsModelInterfaces;
 
 /**
  * Fragment responsible to display the caroussel with the thumbnails

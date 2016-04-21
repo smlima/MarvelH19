@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -18,15 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
-import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
-import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.structure.BaseModel;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.slima.marvelh19.R;
 import com.slima.marvelh19.activities.DetailsActivity;
 import com.slima.marvelh19.databinding.ActivityCharacterDetailsBinding;
@@ -36,16 +29,14 @@ import com.slima.marvelh19.model.characters.ComicsResults;
 import com.slima.marvelh19.model.characters.EventsResult;
 import com.slima.marvelh19.model.characters.SeriesResult;
 import com.slima.marvelh19.model.characters.StoriesResult;
-import com.slima.marvelh19.model.characters.Url;
-import com.slima.marvelh19.ui.viewmodel.ComicsViewModel;
-import com.slima.marvelh19.ui.viewmodel.EventsViewModel;
-import com.slima.marvelh19.ui.viewmodel.SeriesViewModel;
-import com.slima.marvelh19.ui.viewmodel.StoriesViewModel;
+import com.slima.marvelh19.viewmodel.ComicsViewModel;
+import com.slima.marvelh19.viewmodel.EventsViewModel;
+import com.slima.marvelh19.viewmodel.SeriesViewModel;
+import com.slima.marvelh19.viewmodel.StoriesViewModel;
 
 import net.droidlabs.mvvm.recyclerview.adapter.ClickHandler;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 /**
  * Fragment responsible to render the Details of a character
@@ -67,10 +58,6 @@ public class DetailsCharacterFragment extends Fragment {
     private StoriesViewModel storiesViewModel;
     private EventsViewModel eventsViewModel;
 
-    /**
-     * DBFlow observer
-     */
-    private FlowContentObserver observer = new FlowContentObserver();
 
     /**
      * reference to the activity
@@ -134,62 +121,28 @@ public class DetailsCharacterFragment extends Fragment {
             return container;
         }
 
-
         ActivityCharacterDetailsBinding viewDataBinding = DataBindingUtil.inflate(inflater, R.layout.activity_character_details, container, false);
 
         viewDataBinding.setCharacter(charactersViewModel);
 
-        for (Url url : charactersViewModel.getUrls()) {
-            Log.d(TAG, "t = " + url.getType() + " || " + url.getUrl());
-
-        }
-
-        SQLCondition characterIdCondition = Condition.column(new NameAlias("characterId")).eq(charactersViewModel.getId());
-
         // fetch COMICS
-        comicsModel = new ComicsViewModel();
+        comicsModel = new ComicsViewModel(getActivity(), charactersViewModel.getId());
         comicsModel.setComicsResultsClickHandler(mComicsResultsClickHandler);
-        //List<ComicsResults> comicsResultses = ;
-
-        SQLite.select().from(ComicsResults.class).where(characterIdCondition).async().queryList(new TransactionListener<List<ComicsResults>>() {
-            @Override
-            public void onResultReceived(List<ComicsResults> result) {
-                comicsModel.addObjects(result);
-            }
-
-            @Override
-            public boolean onReady(BaseTransaction<List<ComicsResults>> transaction) {
-                return true;
-            }
-
-            @Override
-            public boolean hasResult(BaseTransaction<List<ComicsResults>> transaction, List<ComicsResults> result) {
-                return true;
-            }
-        });
-        //comicsModel.addObjects(comicsResultses);
         viewDataBinding.setListacomics(comicsModel);
 
-
         // fetch SERIES
-        mSeriesViewModel = new SeriesViewModel();
+        mSeriesViewModel = new SeriesViewModel(getActivity(),charactersViewModel.getId());
         mSeriesViewModel.setSeriesResultClickHandler(mComicsResultsClickHandler);
-        List<SeriesResult> seriesResults = SQLite.select().from(SeriesResult.class).where(characterIdCondition).queryList();
-        mSeriesViewModel.addObjects(seriesResults);
         viewDataBinding.setListaseries(mSeriesViewModel);
 
         // fetch SERIES
-        storiesViewModel = new StoriesViewModel();
+        storiesViewModel = new StoriesViewModel(getActivity(),charactersViewModel.getId());
         storiesViewModel.setStoriesResultClickHandler(mComicsResultsClickHandler);
-        List<StoriesResult> storiesResult = SQLite.select().from(StoriesResult.class).where(characterIdCondition).queryList();
-        storiesViewModel.addObjects(storiesResult);
         viewDataBinding.setListastories(storiesViewModel);
 
         // fetch SERIES
-        eventsViewModel = new EventsViewModel();
+        eventsViewModel = new EventsViewModel(getActivity(),charactersViewModel.getId());
         eventsViewModel.setEventsResultClickHandler(mComicsResultsClickHandler);
-        List<EventsResult> eventsResults = SQLite.select().from(EventsResult.class).where(characterIdCondition).queryList();
-        eventsViewModel.addObjects(eventsResults);
         viewDataBinding.setListaevents(eventsViewModel);
 
 
@@ -212,8 +165,6 @@ public class DetailsCharacterFragment extends Fragment {
         // trigger a fetch for details data of the character
         mMainActivityWeakReference.get().getDownloadManager().loadCharacterComics(charactersViewModel.getId());
 
-
-
         viewDataBinding.characterDetailsScrollview.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -232,7 +183,6 @@ public class DetailsCharacterFragment extends Fragment {
             }
         });
 
-
         return viewDataBinding.getRoot();
     }
 
@@ -248,54 +198,22 @@ public class DetailsCharacterFragment extends Fragment {
             supportActionBar.setDisplayHomeAsUpEnabled(true);
         }
 
+        comicsModel.start();
+        mSeriesViewModel.start();
+        storiesViewModel.start();
+        eventsViewModel.start();
 
-        observer.registerForContentChanges(getActivity(), ComicsResults.class);
-        observer.addModelChangeListener(modelChangeListener);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        observer.unregisterForContentChanges(getActivity());
 
+        comicsModel.stop();
+        mSeriesViewModel.stop();
+        storiesViewModel.stop();
+        eventsViewModel.stop();
     }
-
-    /**
-     * obersver for the Table
-     */
-    private FlowContentObserver.OnModelStateChangedListener modelChangeListener = new FlowContentObserver.OnModelStateChangedListener() {
-        @Override
-        public void onModelStateChanged(@Nullable Class<? extends Model> table, BaseModel.Action action, @NonNull SQLCondition[] primaryKeyValues) {
-
-            if (primaryKeyValues == null || primaryKeyValues.length == 0) {
-                // nothing to update
-                return;
-            }
-
-            Condition[] conditions = new Condition[primaryKeyValues.length];
-
-            for (int i = 0; i < primaryKeyValues.length; i++) {
-                conditions[i] = Condition.column(new NameAlias("id")).eq(primaryKeyValues[i].value());
-            }
-
-            final List<ComicsResults> characterResults = SQLite.select().from(ComicsResults.class).where(conditions).queryList();
-
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-                    for (ComicsResults characterResult : characterResults) {
-                        if (characterResult.getThumbnail() != null && characterResult.getThumbnail().hasImageAvailable()) {
-                            comicsModel.addObject(characterResult);
-                        }
-                    }
-
-                }
-            });
-
-
-        }
-    };
 
     /**
      * Handler for when click on one of the recycler views with the thumbnails

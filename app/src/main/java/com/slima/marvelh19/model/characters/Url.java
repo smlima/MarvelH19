@@ -3,6 +3,7 @@ package com.slima.marvelh19.model.characters;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.google.repacked.kotlin.jvm.Transient;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -12,8 +13,6 @@ import com.raizlabs.android.dbflow.structure.container.ForeignKeyContainer;
 import com.slima.marvelh19.database.MarvelDatabase;
 
 import java.io.Serializable;
-
-import kotlin.jvm.Transient;
 
 @Table(database = MarvelDatabase.class)
 public class Url extends BaseModel implements Serializable {

@@ -3,7 +3,7 @@
          xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <variable name="vm" type="com.slima.marvelh19.ui.viewmodel.ImagesThumbnailsModelInterfaces"/>
+        <variable name="vm" type="com.slima.marvelh19.viewmodel.ImagesThumbnailsModelInterfaces"/>
     </data>
 
     <LinearLayout

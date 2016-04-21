@@ -1,5 +1,6 @@
-package com.slima.marvelh19.ui.viewmodel;
+package com.slima.marvelh19.viewmodel;
 
+import android.content.Context;
 import android.databinding.Bindable;
 import android.databinding.ObservableArrayList;
 
@@ -16,8 +17,11 @@ import java.util.List;
  */
 public abstract class ImagesThumbnailsModelInterfaces extends BaseViewModel{
 
-    public ImagesThumbnailsModelInterfaces(ObservableArrayList<ThumbnailModelResultsInterfaces> lista) {
+    protected Context mContext;
+
+    public ImagesThumbnailsModelInterfaces(ObservableArrayList<ThumbnailModelResultsInterfaces> lista, Context context) {
         this.lista = lista;
+        mContext = context;
     }
 
     @Bindable

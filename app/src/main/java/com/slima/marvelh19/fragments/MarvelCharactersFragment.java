@@ -4,32 +4,19 @@ import android.app.Fragment;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
-import com.raizlabs.android.dbflow.sql.language.Condition;
-import com.raizlabs.android.dbflow.sql.language.NameAlias;
-import com.raizlabs.android.dbflow.sql.language.OrderBy;
-import com.raizlabs.android.dbflow.sql.language.SQLCondition;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.structure.BaseModel;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.slima.marvelh19.R;
 import com.slima.marvelh19.activities.MainActivity;
 import com.slima.marvelh19.databinding.FragmentCharactersListBinding;
-import com.slima.marvelh19.model.characters.CharacterResult;
-import com.slima.marvelh19.model.characters.Url;
-import com.slima.marvelh19.ui.viewmodel.CharactersViewModel;
+import com.slima.marvelh19.viewmodel.CharactersViewModel;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 /**
  * Fragment responsible to display the list of characters
@@ -48,7 +35,7 @@ public class MarvelCharactersFragment extends Fragment {
     /**
      * Characters view model
      */
-    CharactersViewModel chars = new CharactersViewModel();
+    CharactersViewModel chars ;
 
     /**
      * empty constructor
@@ -74,6 +61,9 @@ public class MarvelCharactersFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        // set the view model
+        chars = new CharactersViewModel(getActivity());
 
         FragmentCharactersListBinding inflate = DataBindingUtil.inflate(inflater, R.layout.fragment_characters_list, container, false);
 
@@ -107,77 +97,27 @@ public class MarvelCharactersFragment extends Fragment {
 
         mMainActivityWeakReference.get().getDownloadManager().loadInit();
 
-        List<CharacterResult> characterResults = SQLite.select().from(CharacterResult.class).orderBy(OrderBy.fromString("name")).queryList();
-
-        for (CharacterResult characterResult : characterResults) {
-            chars.addCharacter(characterResult);
-        }
+        chars.preload();
 
         View root = inflate.getRoot();
 
         return root;
     }
 
-    /**
-     * the dbflow observer
-     */
-    private FlowContentObserver observer = new FlowContentObserver();
-
-    /**
-     * the listener for the table changes
-     */
-    FlowContentObserver.OnModelStateChangedListener modelChangeListener = new FlowContentObserver.OnModelStateChangedListener() {
-        @Override
-        public void onModelStateChanged(@Nullable Class<? extends Model> table, BaseModel.Action action, @NonNull SQLCondition[] primaryKeyValues) {
-
-            if (primaryKeyValues==null || primaryKeyValues.length==0){
-                // nothing to update
-                return;
-            }
-
-            Condition[] conditions = new Condition[primaryKeyValues.length];
-
-            for (int i = 0; i < primaryKeyValues.length; i++) {
-                conditions[i] = Condition.column(new NameAlias("id")).eq(primaryKeyValues[i].value());
-            }
-
-            final List<CharacterResult> characterResults = SQLite.select().from(CharacterResult.class).where(conditions).queryList();
-
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-                    for (CharacterResult characterResult : characterResults) {
-                        if (characterResult.getThumbnail() != null && characterResult.getThumbnail().hasImageAvailable()) {
-                            chars.addCharacter(characterResult);
-                        }
-
-                        for (Url url : characterResult.getUrls()) {
-                            Log.d(TAG, "run() called with: " + "url= " + url);
-                        }
-                    }
-
-                }
-            });
-
-        }
-    };
-
     @Override
     public void onResume() {
         super.onResume();
 
-        // rgister for changes on the CharacterResult table
-        observer.registerForContentChanges(getActivity(), CharacterResult.class);
-        observer.addModelChangeListener(modelChangeListener);
+        chars.start();
+
     }
 
     @Override
     public void onStop() {
         super.onStop();
 
-        // unregister for the changes on the table
-        observer.unregisterForContentChanges(getActivity());
+        chars.stop();
+
     }
 
     /**

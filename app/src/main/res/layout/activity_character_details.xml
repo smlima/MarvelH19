@@ -5,10 +5,10 @@
     <data>
         <import type="android.view.View"/>
         <variable name="character" type="com.slima.marvelh19.model.characters.CharacterResult"/>
-        <variable name="listacomics" type="com.slima.marvelh19.ui.viewmodel.ComicsViewModel"/>
-        <variable name="listaseries" type="com.slima.marvelh19.ui.viewmodel.SeriesViewModel"/>
-        <variable name="listaevents" type="com.slima.marvelh19.ui.viewmodel.EventsViewModel"/>
-        <variable name="listastories" type="com.slima.marvelh19.ui.viewmodel.StoriesViewModel"/>
+        <variable name="listacomics" type="com.slima.marvelh19.viewmodel.ComicsViewModel"/>
+        <variable name="listaseries" type="com.slima.marvelh19.viewmodel.SeriesViewModel"/>
+        <variable name="listaevents" type="com.slima.marvelh19.viewmodel.EventsViewModel"/>
+        <variable name="listastories" type="com.slima.marvelh19.viewmodel.StoriesViewModel"/>
 
     </data>
 

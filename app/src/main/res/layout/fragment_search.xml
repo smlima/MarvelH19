@@ -3,7 +3,7 @@
          xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <variable name="lista" type="com.slima.marvelh19.ui.viewmodel.SearchCharacterViewModel"/>
+        <variable name="lista" type="com.slima.marvelh19.viewmodel.SearchCharacterViewModel"/>
         <variable name="view" type="com.slima.marvelh19.activities.MainActivity"/>
     </data>
 

@@ -1,4 +1,4 @@
-package com.slima.marvelh19.ui.viewmodel;
+package com.slima.marvelh19.viewmodel;
 
 import android.databinding.Bindable;
 import android.databinding.ObservableArrayList;
@@ -32,5 +32,15 @@ public class GenericImagesViewModel extends BaseViewModel {
 
     public ItemBinder<SeriesResult> itemViewBinder() {
         return new ItemBinderBase<>(BR.vm, R.layout.uicomponent_series);
+    }
+
+    @Override
+    public void preload() {
+
+    }
+
+    @Override
+    public void reload() {
+
     }
 }
